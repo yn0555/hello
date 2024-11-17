@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>抽奖系统</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>欢迎来到抽奖系统！</h1>
+    <button id="drawButton" onclick="handleDraw()">抽奖</button>
+    <p id="result"></p>
+
+    <script>
+      let requestCount = 0;
+      let drawnPerson = null;
+
+      function handleDraw() {
+        // 如果已经按过按钮，显示“一人只能按一次”
+        if (requestCount > 0) {
+          document.getElementById(
+            "result"
+          ).innerText = `一人只能按一次，你只能送给 ${drawnPerson}`;
+          return;
+        }
+
+        // 否则发送请求到后端
+        requestCount++; // 增加请求次数
+        fetch("/draw", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            drawnPerson = data.message.split("：")[1]; // 抽奖结果获取名字并保存
+            document.getElementById(
+              "result"
+            ).innerText = `你抽到了：${drawnPerson}`;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+
+        // 禁用按钮
+        document.getElementById("drawButton").disabled = true;
+      }
+    </script>
+  </body>
+</html>
